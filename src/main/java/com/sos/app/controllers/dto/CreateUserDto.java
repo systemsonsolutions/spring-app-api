@@ -1,4 +1,6 @@
 package com.sos.app.controllers.dto;
 
-public record CreateUserDto(String name, String username, String password, String role) {
+import java.util.UUID;
+
+public record CreateUserDto(String name, String username, String password, String role, UUID user_id) {
 }
