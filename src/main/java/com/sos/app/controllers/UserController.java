@@ -1,5 +1,6 @@
 package com.sos.app.controllers;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,6 +78,17 @@ public class UserController {
 
   @Transactional
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  @GetMapping("/users/{id}")
+  public ResponseEntity<Object> getUser(@PathVariable(value = "id") UUID id) {
+    Optional<User> userOptional = userRepository.findById(id);
+    if (!userOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(userOptional.get());
+  }
+
+  @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PutMapping("/users/{id}")
   public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody CreateUserDto dto) {
 
@@ -88,6 +100,7 @@ public class UserController {
     User user = userOptional.get();
     user.setName(dto.name());
     user.setUsername(dto.username());
+
     if (dto.password() != null && !dto.password().isEmpty()) {
       user.setPassword(passwordEncoder.encode(dto.password()));
     }
@@ -95,12 +108,18 @@ public class UserController {
     var basicRole = roleRepository.findByName(Role.Values.BASIC.name());
     var adminRole = roleRepository.findByName(Role.Values.ADMIN.name());
 
-    if (dto.role().equals("ADMIN")) {
-      user.setRoles(Set.of(adminRole));
-    } else {
-      user.setRoles(Set.of(basicRole));
+    if (basicRole == null || adminRole == null) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role não encontrada.");
     }
 
+    Set<Role> roles = new HashSet<>();
+    if (dto.role().equals("ADMIN")) {
+      roles.add(adminRole);
+    } else {
+      roles.add(basicRole);
+    }
+
+    user.setRoles(roles);
     userRepository.save(user);
 
     return ResponseEntity.ok().build();
