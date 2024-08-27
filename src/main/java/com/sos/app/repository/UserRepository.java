@@ -11,4 +11,6 @@ import com.sos.app.models.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
   Optional<User> findByUsername(String username);
+
+  void deleteById(UUID userId);
 }

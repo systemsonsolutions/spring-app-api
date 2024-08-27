@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,6 +90,20 @@ public class UserController {
 
   @Transactional
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  @DeleteMapping("/users/{id}")
+  public ResponseEntity<Object> deleteUser(@PathVariable(value = "id") UUID id) {
+    Optional<User> userOptional = userRepository.findById(id);
+    if (!userOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+    }
+    userRepository.deleteById(userOptional.get().getUserId());
+    // userRepository.delete(userOptional.get());
+
+    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+  }
+
+  @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PutMapping("/users/{id}")
   public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody CreateUserDto dto) {
 
@@ -109,7 +124,7 @@ public class UserController {
     var adminRole = roleRepository.findByName(Role.Values.ADMIN.name());
 
     if (basicRole == null || adminRole == null) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role não encontrada.");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found.");
     }
 
     Set<Role> roles = new HashSet<>();
