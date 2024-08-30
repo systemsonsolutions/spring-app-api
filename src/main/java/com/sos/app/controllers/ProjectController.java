@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.sos.app.controllers.dto.CreateProjectDto;
 import com.sos.app.models.Project;
 import com.sos.app.repository.ProjectRepository;
-import com.sos.app.repository.RoleRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,12 +25,6 @@ public class ProjectController {
 
   @Autowired
   private ProjectRepository projectRepository;
-
-  @Autowired
-  private RoleRepository roleRepository;
-
-  @Autowired
-  private PasswordEncoder passwordEncoder;
 
   @Value("${file.upload-dir}")
   private String uploadDir;
@@ -63,8 +55,18 @@ public class ProjectController {
   }
 
   private String uploadImage(MultipartFile file) throws IOException {
+    Path uploadPath;
+
+    if (Paths.get(uploadDir).isAbsolute()) {
+      // Se uploadDir já é um caminho absoluto, use-o diretamente
+      uploadPath = Paths.get(uploadDir);
+    } else {
+      // Caso contrário, combine com o diretório raiz do projeto
+      String absolutePath = System.getProperty("user.dir") + "/" + uploadDir;
+      uploadPath = Paths.get(absolutePath);
+    }
+
     // Criar diretório se não existir
-    Path uploadPath = Paths.get(uploadDir);
     if (!Files.exists(uploadPath)) {
       Files.createDirectories(uploadPath);
     }
