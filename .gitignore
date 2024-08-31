@@ -33,4 +33,4 @@ build/
 .vscode/
 src\main\java\com\sos\app\configurations\AdminUserConfig.java 
 
-uploads
+/uploads/
