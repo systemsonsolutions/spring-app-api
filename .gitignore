@@ -31,4 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-src\main\java\com\sos\app\configurations\AdminUserConfig.java
+src\main\java\com\sos\app\configurations\AdminUserConfig.java 
+
+uploads
