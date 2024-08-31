@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/projects")
@@ -28,6 +30,24 @@ public class ProjectController {
 
   @Value("${file.upload-dir}")
   private String uploadDir;
+
+  @GetMapping("/all")
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  public ResponseEntity<List<Project>> listProjects() {
+    var projects = projectRepository.findAll();
+    return ResponseEntity.ok(projects);
+  }
+
+  @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  @GetMapping("/{id}")
+  public ResponseEntity<Object> getProject(@PathVariable(value = "id") Long id) {
+    Optional<Project> projectOptional = projectRepository.findById(id);
+    if (!projectOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(projectOptional.get());
+  }
 
   @Transactional
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
