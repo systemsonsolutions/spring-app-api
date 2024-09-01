@@ -11,21 +11,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sos.app.controllers.dto.CreateProjectDto;
-import com.sos.app.controllers.dto.CreateUserDto;
+
 import com.sos.app.models.Project;
-import com.sos.app.models.Role;
-import com.sos.app.models.User;
+
 import com.sos.app.repository.ProjectRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/projects")
@@ -86,12 +83,12 @@ public class ProjectController {
   public ResponseEntity<Object> deleteProject(@PathVariable(value = "id") Long id) {
     Optional<Project> projectOptional = projectRepository.findById(id);
     if (!projectOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
     }
     projectRepository.deleteById(projectOptional.get().getId());
     // userRepository.delete(userOptional.get());
 
-    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body("Project deleted successfully.");
   }
 
   @Transactional

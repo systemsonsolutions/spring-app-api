@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.sos.app.controllers.dto.LoginRequest;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
