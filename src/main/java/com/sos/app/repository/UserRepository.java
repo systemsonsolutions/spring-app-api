@@ -1,16 +1,13 @@
 package com.sos.app.repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sos.app.models.User;
+import com.sos.app.models.UserModel;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-  Optional<User> findByUsername(String username);
-
-  void deleteById(UUID userId);
+public interface UserRepository extends JpaRepository<UserModel, Long> {
+    Optional<UserModel> findByUsername(String username);
 }

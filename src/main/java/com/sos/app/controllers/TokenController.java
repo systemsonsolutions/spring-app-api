@@ -1,7 +1,7 @@
 package com.sos.app.controllers;
 
 import java.time.Instant;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sos.app.controllers.dto.LoginRequest;
-import com.sos.app.controllers.dto.LoginResponse;
-import com.sos.app.models.Role;
+import com.sos.app.dtos.Auth.LoginResponse;
+import com.sos.app.dtos.Auth.LoginRequest;
+import com.sos.app.models.RoleModel;
+import com.sos.app.models.UserModel;
+import com.sos.app.repository.RoleRepository;
 import com.sos.app.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -30,28 +32,29 @@ public class TokenController {
   private UserRepository userRepository;
 
   @Autowired
+  private RoleRepository roleRepository;
+
+  @Autowired
   private BCryptPasswordEncoder passwordEncoder;
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-
-    var user = userRepository.findByUsername(loginRequest.username());
+    Optional<UserModel> user = userRepository.findByUsername(loginRequest.username());
+    Optional<RoleModel> role = roleRepository.findById(user.get().getIdRole());
 
     if (user.isEmpty() || !user.get().isLoginCorrect(loginRequest, passwordEncoder)) {
       throw new BadCredentialsException("user or password is invalid!");
     }
 
-    var now = Instant.now();
-    var expiresIn = 7200L;
+    Instant now = Instant.now();
+    Long expiresIn = 7200L;
 
-    var scopes = user.get().getRoles()
-        .stream()
-        .map(Role::getName)
-        .collect(Collectors.joining(" "));
+    RoleModel roleModel = roleRepository.findById(user.get().getIdRole()).get();
+    var scopes = roleModel.getName();
 
     var claims = JwtClaimsSet.builder()
         .issuer("mybackend")
-        .subject(user.get().getUserId().toString())
+        .subject(user.get().getId().toString())
         .issuedAt(now)
         .expiresAt(now.plusSeconds(expiresIn))
         .claim("scope", scopes)
@@ -60,6 +63,6 @@ public class TokenController {
     var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
     return ResponseEntity.ok(
-        new LoginResponse(jwtValue, expiresIn, loginRequest.username(), user.get().getName(), user.get().getRoles()));
+        new LoginResponse(jwtValue, expiresIn, loginRequest.username(), user.get().getName(), role.get().getName()));
   }
 }

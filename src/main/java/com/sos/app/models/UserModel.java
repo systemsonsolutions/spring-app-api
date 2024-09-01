@@ -1,22 +1,18 @@
 package com.sos.app.models;
 
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.sos.app.controllers.dto.LoginRequest;
+import com.sos.app.dtos.Auth.LoginRequest;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,20 +25,30 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_users")
-public class User {
+public class UserModel {
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(name = "user_id")
-  private UUID userId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  @Column(unique = true)
+  @Column(name = "username", unique = true, nullable = false)
   private String username;
+
+  @Column(name = "password", nullable = false)
   private String password;
+
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(name = "tb_users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set<Role> roles;
+  @Column(name = "id_role", nullable = false)
+  private Long idRole;
+
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
+
+  @UpdateTimestamp
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
 
   public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
     return passwordEncoder.matches(loginRequest.password(), this.password);
