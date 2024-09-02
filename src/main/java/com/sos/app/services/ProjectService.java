@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,8 +72,14 @@ public class ProjectService {
 
     public ProjectModel newProject(CreateProjectDto project) throws IOException {
         var existingProject = projectRepository.findByNameOrLink(project.name(), project.link());
+
         if (existingProject.isPresent()) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Project already exists");
+        }
+
+        if (project.image() == null || project.image().isEmpty()) {
+            // Trate o caso onde o arquivo não foi enviado ou está vazio
+            throw new DataIntegrityException("Arquivo não selecionado!");
         }
 
         // Fazer o upload da imagem
