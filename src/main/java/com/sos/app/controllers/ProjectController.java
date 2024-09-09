@@ -2,142 +2,73 @@ package com.sos.app.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Pageable;
 
-import com.sos.app.controllers.dto.CreateProjectDto;
+import com.sos.app.dtos.Project.CreateProjectDto;
+import com.sos.app.dtos.Project.ProjectDto;
+import com.sos.app.dtos.Project.UpdateProjectDto;
+import com.sos.app.models.ProjectModel;
+import com.sos.app.services.ProjectService;
 
-import com.sos.app.models.Project;
-
-import com.sos.app.repository.ProjectRepository;
-
+import jakarta.validation.Valid;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/projects")
 public class ProjectController {
-
   @Autowired
-  private ProjectRepository projectRepository;
+  private ProjectService projectService;
 
   @Value("${file.upload-dir}")
   private String uploadDir;
 
-  @GetMapping("/all")
-  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-  public ResponseEntity<List<Project>> listProjects() {
-    var projects = projectRepository.findAll();
-    return ResponseEntity.ok(projects);
+  @GetMapping
+  public ResponseEntity<Page<ProjectDto>> listUsers(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<ProjectDto> projectPage = projectService.findAll(pageable);
+    return ResponseEntity.ok(projectPage);
   }
 
   @Transactional
-  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @GetMapping("/{id}")
   public ResponseEntity<Object> getProject(@PathVariable(value = "id") Long id) {
-    Optional<Project> projectOptional = projectRepository.findById(id);
-    if (!projectOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
-    }
-    return ResponseEntity.status(HttpStatus.OK).body(projectOptional.get());
+    ProjectDto projectDto = projectService.findById(id);
+    return ResponseEntity.ok(projectDto);
   }
 
   @Transactional
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PutMapping("/{id}")
-  public ResponseEntity<Void> updateProject(@PathVariable Long id, @ModelAttribute CreateProjectDto dto)
-      throws IOException {
+  public ResponseEntity<ProjectDto> updateById(@Valid @RequestBody @ModelAttribute UpdateProjectDto projectRequest,
+      @PathVariable("id") Long id, BindingResult br) throws IOException {
 
-    Optional<Project> projectOptional = projectRepository.findById(id);
-    if (projectOptional.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-
-    Project project = projectOptional.get();
-    project.setName(dto.name());
-    project.setLink(dto.link());
-    // Verifica se a imagem foi enviada
-    if (dto.image() != null && !dto.image().isEmpty()) {
-      String imagePath = uploadImage(dto.image());
-      project.setImage(imagePath);
-    }
-
-    projectRepository.save(project);
-
-    return ResponseEntity.ok().build();
+    ProjectDto projectDto = projectService.updateProject(projectRequest, id);
+    return ResponseEntity.ok().body(projectDto);
   }
 
   @Transactional
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Object> deleteProject(@PathVariable(value = "id") Long id) {
-    Optional<Project> projectOptional = projectRepository.findById(id);
-    if (!projectOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
-    }
-    projectRepository.deleteById(projectOptional.get().getId());
-    // userRepository.delete(userOptional.get());
-
-    return ResponseEntity.status(HttpStatus.OK).body("Project deleted successfully.");
+    projectService.deleteById(id);
+    return ResponseEntity.noContent().build();
   }
 
   @Transactional
-  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PostMapping
-  public ResponseEntity<Void> newProject(@ModelAttribute CreateProjectDto dto) throws IOException {
-
-    // Verificar se já existe um projeto com o mesmo nome ou link (opcional)
-    var existingProject = projectRepository.findByNameOrLink(dto.name(), dto.link());
-    if (existingProject.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Project already exists");
-    }
-
-    // Fazer o upload da imagem
-    String imagePath = uploadImage(dto.image());
-
-    // Criar o novo projeto
-    var project = new Project();
-    project.setName(dto.name());
-    project.setLink(dto.link());
-    project.setImage(imagePath);
-
-    projectRepository.save(project);
-
-    return ResponseEntity.ok().build();
-  }
-
-  private String uploadImage(MultipartFile file) throws IOException {
-    Path uploadPath;
-
-    if (Paths.get(uploadDir).isAbsolute()) {
-      // Se uploadDir já é um caminho absoluto, use-o diretamente
-      uploadPath = Paths.get(uploadDir);
-    } else {
-      // Caso contrário, combine com o diretório raiz do projeto
-      String absolutePath = System.getProperty("user.dir") + "/" + uploadDir;
-      uploadPath = Paths.get(absolutePath);
-    }
-
-    // Criar diretório se não existir
-    if (!Files.exists(uploadPath)) {
-      Files.createDirectories(uploadPath);
-    }
-
-    // Salvar o arquivo no diretório especificado
-    String fileName = file.getOriginalFilename();
-    Path filePath = uploadPath.resolve(fileName);
-    file.transferTo(filePath.toFile());
-
-    return fileName; // Retorna o nome do arquivo para salvar no banco
+  public ResponseEntity<ProjectModel> newProject(@ModelAttribute CreateProjectDto dto) throws IOException {
+    ProjectModel project = projectService.newProject(dto);
+    return ResponseEntity.ok().body(project);
   }
 }

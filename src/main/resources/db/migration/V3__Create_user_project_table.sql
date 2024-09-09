@@ -1,0 +1,6 @@
+CREATE TABLE tb_projects (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    link VARCHAR(255) NOT NULL,
+    image VARCHAR(255) NOT NULL
+);

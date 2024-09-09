@@ -1,4 +1,4 @@
-package com.sos.app.controllers.dto;
+package com.sos.app.dtos.User;
 
 import java.util.UUID;
 

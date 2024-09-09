@@ -21,7 +21,6 @@ public class FormController {
   @Value("${spring.mail.username}")
   private String email;
 
-  // Lista de emails destinatários
   private String[] recipients = { "jamiltombento@gmail.com", email };
 
   @PostMapping
