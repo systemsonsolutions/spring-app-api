@@ -28,7 +28,9 @@ public class ProjectModel {
   @Column(name = "link", nullable = false)
   private String link;
 
+  @Column(name = "description", nullable = false)
+  private String description;
+
   @Column(name = "image", nullable = false)
   private String image;
-
 }

@@ -14,10 +14,13 @@ public class ProjectDto {
     @NotNull(message = "Não pode ser nulo")
     private Long id;
 
-    @NotBlank(message = "O usuário não deve estar em branco")
+    @NotBlank(message = "O nome não deve estar em branco")
     private String name;
 
-    @NotBlank(message = "O nome não deve estar em branco")
+    @NotBlank(message = "A descrição não deve estar em branco")
+    private String description;
+
+    @NotBlank(message = "O link não deve estar em branco")
     private String link;
 
     @NotNull(message = "Não pode ser nulo")

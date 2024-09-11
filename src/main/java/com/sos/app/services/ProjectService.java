@@ -10,7 +10,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -89,6 +88,7 @@ public class ProjectService {
         var projectModel = new ProjectModel();
         projectModel.setName(project.name());
         projectModel.setLink(project.link());
+        projectModel.setDescription(project.description());
         projectModel.setImage(imagePath);
 
         projectRepository.save(projectModel);
@@ -98,9 +98,6 @@ public class ProjectService {
 
     public ProjectDto updateProject(UpdateProjectDto project, Long id) throws IOException {
         try {
-            System.out.println(project.getName());
-            System.out.println(project.getLink());
-            System.out.println(project.getImage());
             Optional<ProjectModel> projectOptional = projectRepository.findById(id);
 
             if (projectOptional.isEmpty()) {
@@ -110,6 +107,7 @@ public class ProjectService {
             ProjectModel projectModel = projectOptional.get();
             projectModel.setName(project.getName());
             projectModel.setLink(project.getLink());
+            projectModel.setDescription(project.getDescription());
 
             // Verifica se a imagem foi enviada
             if (project.getImage() != null && !project.getImage().isEmpty()) {
@@ -118,10 +116,6 @@ public class ProjectService {
             }
 
             projectRepository.save(projectModel);
-
-            System.out.println(projectModel.getName());
-            System.out.println(projectModel.getLink());
-            System.out.println(projectModel.getImage());
 
             return modelMapper.map(projectModel, ProjectDto.class);
         } catch (DataIntegrityViolationException e) {

@@ -18,6 +18,9 @@ public class UpdateProjectDto {
     @NotBlank(message = "O nome não deve estar em branco")
     private String name;
 
+    @NotBlank(message = "A descrição não deve estar em branco")
+    private String description;
+
     @NotBlank(message = "O link não deve estar em branco")
     private String link;
 
