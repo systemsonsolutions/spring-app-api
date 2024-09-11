@@ -60,6 +60,8 @@ public class SecurityConfig {
     http
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.POST, "/login").permitAll()
+            .requestMatchers(HttpMethod.GET, "/projects").permitAll()
+            .requestMatchers(HttpMethod.GET, "/founders").permitAll()
             .requestMatchers("/uploads/**").permitAll()
             .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable())

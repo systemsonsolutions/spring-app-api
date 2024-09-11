@@ -76,6 +76,7 @@ public class FounderController {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PostMapping
   public ResponseEntity<FounderModel> newFounder(@ModelAttribute CreateFounderDto dto) throws IOException {
     FounderModel founder = founderService.newFounder(dto);

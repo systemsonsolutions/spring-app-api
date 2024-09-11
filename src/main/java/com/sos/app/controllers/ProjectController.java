@@ -66,6 +66,7 @@ public class ProjectController {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   @PostMapping
   public ResponseEntity<ProjectModel> newProject(@ModelAttribute CreateProjectDto dto) throws IOException {
     ProjectModel project = projectService.newProject(dto);

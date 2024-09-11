@@ -49,13 +49,6 @@ public class UserController {
   BCryptPasswordEncoder passwordEncoder;
 
   @Transactional
-  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-  @PostMapping
-  public ResponseEntity<UserModel> newUser(@Valid @RequestBody CreateUserRequest dto) {
-    UserModel user = userService.newUser(dto);
-    return ResponseEntity.ok().body(user);
-  }
-
   @GetMapping
   public ResponseEntity<Page<UserDto>> listUsers(
       @RequestParam(defaultValue = "0") int page,
@@ -67,13 +60,14 @@ public class UserController {
     return ResponseEntity.ok(usersPage);
   }
 
-  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  @Transactional
   @GetMapping("/{id}")
   public ResponseEntity<UserDto> findById(@PathVariable("id") Long id) {
     var users = userService.findById(id);
     return ResponseEntity.ok(users);
   }
 
+  @Transactional
   @PutMapping("/{id}")
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   public ResponseEntity<UserDto> updateById(@Valid @RequestBody UpdateUserRequest userRequest,
@@ -92,6 +86,15 @@ public class UserController {
     return ResponseEntity.ok().body(personDto);
   }
 
+  @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+  @PostMapping
+  public ResponseEntity<UserModel> newUser(@Valid @RequestBody CreateUserRequest dto) {
+    UserModel user = userService.newUser(dto);
+    return ResponseEntity.ok().body(user);
+  }
+
+  @Transactional
   @DeleteMapping("/{id}")
   @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
   public ResponseEntity<Void> deleteById(@PathVariable("id") Long id) {
