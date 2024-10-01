@@ -28,5 +28,5 @@ public class ProductDto {
   private Float price;
 
   @NotNull(message = "A imagem não deve estar em branco")
-  private MultipartFile image;
+  private String image;
 }

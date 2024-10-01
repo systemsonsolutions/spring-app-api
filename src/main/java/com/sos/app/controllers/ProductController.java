@@ -41,7 +41,7 @@ public class ProductController {
   private String uploadDir;
 
   @GetMapping
-  public ResponseEntity<Page<ProductDto>> listUsers(
+  public ResponseEntity<Page<ProductDto>> listProducts(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
 
@@ -79,6 +79,7 @@ public class ProductController {
   @Transactional
   @PostMapping
   public ResponseEntity<ProductModel> newProduct(@ModelAttribute CreateProductDto dto) throws IOException {
+    System.out.println(dto);
     ProductModel product = productService.newProduct(dto);
     return ResponseEntity.ok().body(product);
   }
