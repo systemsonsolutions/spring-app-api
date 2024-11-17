@@ -21,8 +21,6 @@ public class FormController {
   @Value("${spring.mail.username}")
   private String email;
 
-  private String[] recipients = { "jamiltombento@gmail.com", email };
-
   @PostMapping
   public void handleFormSubmission(@RequestBody FormData formData) {
     sendEmail(formData);
@@ -32,7 +30,7 @@ public class FormController {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setFrom(formData.getEmail());
     message.setTo(email);
-    message.setCc("jamiltombento@gmail.com");
+    // message.setCc("israel_alves77@hotmail.com");
     message.setSubject("Form Submission: " + formData.getName());
     message.setText("Name: " + formData.getName() + "\n" +
         "Email: " + formData.getEmail() + "\n" +
