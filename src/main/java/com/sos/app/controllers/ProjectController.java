@@ -30,7 +30,7 @@ public class ProjectController {
   private String uploadDir;
 
   @GetMapping
-  public ResponseEntity<Page<ProjectDto>> listUsers(
+  public ResponseEntity<Page<ProjectDto>> listProject(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
 
