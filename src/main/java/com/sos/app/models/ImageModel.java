@@ -1,5 +1,7 @@
 package com.sos.app.models;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +28,7 @@ public class ImageModel {
   private Long id;
 
   @Column(name = "url", nullable = false)
-  private String url;
+  private MultipartFile url;
 
   @ManyToOne
   @JoinColumn(name = "banner_id", nullable = false)
