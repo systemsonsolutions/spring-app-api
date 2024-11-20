@@ -28,7 +28,7 @@ public class ImageModel {
   private Long id;
 
   @Column(name = "url", nullable = false)
-  private MultipartFile url;
+  private String url;
 
   @ManyToOne
   @JoinColumn(name = "banner_id", nullable = false)

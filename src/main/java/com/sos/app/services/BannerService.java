@@ -22,14 +22,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.sos.app.dtos.Banner.BannerDto;
 import com.sos.app.dtos.Banner.CreateBannerDto;
-import com.sos.app.dtos.Founder.CreateFounderDto;
-import com.sos.app.dtos.Founder.FounderDto;
-import com.sos.app.dtos.Founder.UpdateFounderDto;
 import com.sos.app.models.BannerModel;
-import com.sos.app.models.FounderModel;
 import com.sos.app.models.ImageModel;
 import com.sos.app.repository.BannerRepository;
-import com.sos.app.repository.FounderRepository;
 import com.sos.app.services.exceptions.DataIntegrityException;
 import com.sos.app.services.exceptions.NotFoundException;
 
@@ -78,12 +73,13 @@ public class BannerService {
     }
 
     if (!banner.images().isEmpty()) {
-      for (ImageModel image : banner.images()) {
+      for (MultipartFile image : banner.images()) {
         try {
           // Chama o método de upload de imagem para cada imagem na lista
-          String imagePath = uploadImage(image.getUrl());
+          String imagePath = uploadImage(image);
+          
           ImageModel imageModel = new ImageModel();
-          imageModel.setUrl(image.getUrl());
+          imageModel.setUrl(imagePath);
           imagesPath.add(imageModel);
           System.out.println("Upload realizado com sucesso: " + imagePath);
         } catch (Exception e) {
@@ -106,46 +102,46 @@ public class BannerService {
     return bannerModel;
   }
 
-  public FounderDto updateFounder(UpdateFounderDto founder, Long id) throws IOException {
-    try {
-      System.out.println(founder.getName());
-      System.out.println(founder.getLinkedin());
-      System.out.println(founder.getPosition());
-      System.out.println(founder.getImage());
-      Optional<FounderModel> founderOptional = founderRepository.findById(id);
+  // public FounderDto updateFounder(UpdateFounderDto founder, Long id) throws IOException {
+  //   try {
+  //     System.out.println(founder.getName());
+  //     System.out.println(founder.getLinkedin());
+  //     System.out.println(founder.getPosition());
+  //     System.out.println(founder.getImage());
+  //     Optional<BannerModel> founderOptional = bannerRepository.findById(id);
 
-      if (founderOptional.isEmpty()) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-      }
+  //     if (founderOptional.isEmpty()) {
+  //       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+  //     }
 
-      FounderModel founderModel = founderOptional.get();
-      founderModel.setName(founder.getName());
-      founderModel.setLinkedin(founder.getLinkedin());
-      founderModel.setPosition(founder.getPosition());
+  //     BannerModel bannerModel = founderOptional.get();
+  //     bannerModel.setName(founder.getName());
+  //     bannerModel.setLinkedin(founder.getLinkedin());
+  //     bannerModel.setPosition(founder.getPosition());
 
-      // Verifica se a imagem foi enviada
-      if (founder.getImage() != null && !founder.getImage().isEmpty()) {
-        String imagePath = uploadImage(founder.getImage());
-        founderModel.setImage(imagePath);
-      }
+  //     // Verifica se a imagem foi enviada
+  //     if (founder.getImage() != null && !founder.getImage().isEmpty()) {
+  //       String imagePath = uploadImage(founder.getImage());
+  //       bannerModel.setImage(imagePath);
+  //     }
 
-      founderRepository.save(founderModel);
+  //     bannerRepository.save(founderModel);
 
-      System.out.println(founderModel.getName());
-      System.out.println(founderModel.getLinkedin());
-      System.out.println(founderModel.getPosition());
-      System.out.println(founderModel.getImage());
+  //     System.out.println(bannerModel.getName());
+  //     System.out.println(bannerModel.getLinkedin());
+  //     System.out.println(bannerModel.getPosition());
+  //     System.out.println(bannerModel.getImage());
 
-      return modelMapper.map(founderModel, FounderDto.class);
-    } catch (DataIntegrityViolationException e) {
-      throw new DataIntegrityException("Campo(s) obrigatório(s) da Pessoa não foi(foram) preenchido(s).");
-    }
-  }
+  //     return modelMapper.map(bannerModel, FounderDto.class);
+  //   } catch (DataIntegrityViolationException e) {
+  //     throw new DataIntegrityException("Campo(s) obrigatório(s) da Pessoa não foi(foram) preenchido(s).");
+  //   }
+  // }
 
   public void deleteById(Long id) {
     try {
-      if (founderRepository.existsById(id)) {
-        founderRepository.deleteById(id);
+      if (bannerRepository.existsById(id)) {
+        bannerRepository.deleteById(id);
       } else {
         throw new DataIntegrityException("O Id do fundador não existe na base de dados!");
       }
