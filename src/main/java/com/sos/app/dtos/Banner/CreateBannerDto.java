@@ -4,6 +4,6 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public record CreateBannerDto(String name, Integer height, Integer width, List<MultipartFile> images) {
+public record CreateBannerDto(String name, Integer height, Integer width) {
 
 }

@@ -22,18 +22,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.sos.app.dtos.Banner.BannerDto;
 import com.sos.app.dtos.Banner.CreateBannerDto;
+import com.sos.app.dtos.Image.ImageDto;
 import com.sos.app.models.BannerModel;
 import com.sos.app.models.ImageModel;
 import com.sos.app.repository.BannerRepository;
+import com.sos.app.repository.ImageRepository;
 import com.sos.app.services.exceptions.DataIntegrityException;
 import com.sos.app.services.exceptions.NotFoundException;
 
 @Service
-public class BannerService {
+public class ImageService {
 
   @Autowired
   BannerRepository bannerRepository;
-
+  
+  @Autowired
+  ImageRepository imageRepository;
+  
   List<ImageModel> imagesPath;
 
   @Autowired
@@ -42,10 +47,10 @@ public class BannerService {
   @Value("${file.upload-dir}")
   private String uploadDir;
 
-  public Page<BannerDto> findAll(Pageable pageable) {
-    return bannerRepository.findAll(pageable).map(user -> {
-      BannerDto bannerDto = modelMapper.map(user, BannerDto.class);
-      return bannerDto;
+  public Page<ImageDto> findAll(Pageable pageable) {
+    return imageRepository.findAll(pageable).map(user -> {
+      ImageDto imageDto = modelMapper.map(user, ImageDto.class);
+      return imageDto;
     });
   }
 
@@ -65,22 +70,44 @@ public class BannerService {
     }
   }
 
-  public BannerModel newBanner(CreateBannerDto banner) throws IOException {
-    var existingBanner = bannerRepository.findByName(banner.name());
+  public ImageModel newImage(BannerDto banner, MultipartFile image) throws IOException {
+    var existingBanner = bannerRepository.findByName(banner.getName());
 
-    if (existingBanner.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Banner already exists");
+    if (!existingBanner.isPresent()) {
+      throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Banner not found");
     }
+
+    // if (!images.isEmpty()) {
+    //   for (MultipartFile image : images) {
+    //     try {
+    //       // Chama o método de upload de imagem para cada imagem na lista
+    //       String imagePath = uploadImage(image);
+          
+    //       ImageModel imageModel = new ImageModel();
+    //       imageModel.setUrl(imagePath);
+    //       imageModel.setBanner(existingBanner.get());
+    //       imagesPath.add(imageModel);
+    //       System.out.println("Upload realizado com sucesso: " + imagePath);
+    //     } catch (Exception e) {
+    //       // Trata possíveis erros no upload
+    //       System.err.println("Erro ao fazer upload da imagem: " + image);
+    //       e.printStackTrace();
+    //     }
+    //   }
+    // }
 
     // Criar o novo Banner
     var bannerModel = new BannerModel();
-    bannerModel.setName(banner.name());
-    bannerModel.setHeight(banner.height());
-    bannerModel.setWidth(banner.width());
+    var imageModel = new ImageModel();
 
-    bannerRepository.save(bannerModel);
+    String imagePath = uploadImage(image);
 
-    return bannerModel;
+    imageModel.setUrl(imagePath);
+    imageModel.setBanner(existingBanner.get());
+
+    imageRepository.save(imageModel);
+
+    return imageModel;
   }
 
   // public FounderDto updateFounder(UpdateFounderDto founder, Long id) throws IOException {
@@ -121,13 +148,13 @@ public class BannerService {
 
   public void deleteById(Long id) {
     try {
-      if (bannerRepository.existsById(id)) {
-        bannerRepository.deleteById(id);
+      if (imageRepository.existsById(id)) {
+        imageRepository.deleteById(id);
       } else {
-        throw new DataIntegrityException("O Id do fundador não existe na base de dados!");
+        throw new DataIntegrityException("O Id da imagem não existe na base de dados!");
       }
     } catch (DataIntegrityViolationException e) {
-      throw new DataIntegrityException("Não é possível excluir a Pessoa!");
+      throw new DataIntegrityException("Não é possível excluir a Imagem!");
     }
   }
 
