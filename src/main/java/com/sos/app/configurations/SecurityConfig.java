@@ -62,6 +62,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/login").permitAll()
             .requestMatchers(HttpMethod.GET, "/projects").permitAll()
             .requestMatchers(HttpMethod.GET, "/founders").permitAll()
+            .requestMatchers(HttpMethod.GET, "/banners/images/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/banners").permitAll()
             .requestMatchers("/uploads/**").permitAll()
             .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable())
