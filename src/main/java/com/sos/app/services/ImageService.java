@@ -47,8 +47,8 @@ public class ImageService {
   @Value("${file.upload-dir}")
   private String uploadDir;
 
-  public Page<ImageDto> findAll(Pageable pageable) {
-    return imageRepository.findAll(pageable).map(user -> {
+  public Page<ImageDto> findAll(Pageable pageable, Long id) {
+    return imageRepository.findByBannerId(pageable, id).map(user -> {
       ImageDto imageDto = modelMapper.map(user, ImageDto.class);
       return imageDto;
     });

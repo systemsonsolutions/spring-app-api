@@ -86,14 +86,17 @@ public class BannerController {
     return ResponseEntity.ok().body(banner);
   }
 
+  @Transactional
   @GetMapping("/images/{id}")
   public ResponseEntity<Page<ImageDto>> listImages(
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "10") int size,
+      @PathVariable(value = "id") Long id
+      ) {
 
     Pageable pageable = PageRequest.of(page, size);
 
-    Page<ImageDto> imagePage = imageService.findAll(pageable);
+    Page<ImageDto> imagePage = imageService.findAll(pageable, id);
     return ResponseEntity.ok(imagePage);
   }
 

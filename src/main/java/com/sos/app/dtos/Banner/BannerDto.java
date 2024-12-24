@@ -27,7 +27,4 @@ public class BannerDto {
 
   @NotBlank(message = "Não pode ser nulo")
   private Integer width;
-
-  @NotNull(message = "Não pode ser nulo")
-  private List<ImageModel> images;
 }
